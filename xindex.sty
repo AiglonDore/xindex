@@ -1,0 +1,66 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{xindex}[23/10/2021]
+
+\RequirePackage{etoolbox,xparse}
+
+\newif\if@xindy\@xindyfalse
+\providecommand{\write@aux}[1]{\protected@write\@auxout{}{#1}}%Simplicité pour écrire dans le .aux
+
+\DeclareOption{xindy}{\@xindytrue}
+\DeclareOption{autosort}{\relax}%Nécessite l'option --shell-escape et permet de lancer automatquement un tri des index
+\DeclareOption*{\PackageWarning{xindex}{Option '\CurrentOption' not recognized}}
+\ProcessOptions*
+
+\RequirePackage{makeidx,index}
+
+\AfterPreamble{\write@aux{\string\providecommand\string\index@sort[1]{\relax}}
+\write@aux{\string\providecommand\string\index@style[1]{\relax}}
+\write@aux{\string\providecommand\string\aux@new@index[2]{\relax}}
+\write@aux{\string\providecommand\string\start@document{\relax}}
+\write@aux{\string\index@style{francais}}
+}
+
+\AfterEndPreamble{\write@aux{\string\start@document}}
+
+\ProvideDocumentCommand{\indexstyle}{m}{\AfterPreamble{\write@aux{\string\index@style{#1}}}}%Changement du style d'index
+
+\def\def@index#1#2#3#4{%
+    \AfterPreamble{\write@aux{\string\aux@new@index{#3}{#4}}}
+    \@namedef{idx@#2}{#3:#4:#1}%
+    \expandafter\let\csname if@immediate@#2\endcsname\if@tempswa
+    \if@filesw
+        \if@newindex
+            \expandafter\newtoks\csname idxtitle@#2\endcsname
+        \fi
+        \@ifundefined{disable@#2}{%
+            \if@newindex
+                \expandafter\newwrite\csname tf@#2\endcsname
+            \else
+                \immediate\closeout\@nameuse{tf@#2}%
+            \fi
+            \immediate\openout\@nameuse{tf@#2}\jobname.#3 %
+            \PackageInfo{index}{Writing index file \jobname.#3}%
+        }
+        {\PackageInfo{index}{Index `#2' disabled -- not opening
+                      \jobname.#3}}%
+    \fi
+    \expandafter\csname idxtitle@#2\endcsname
+}
+
+\@onlypreamble\indexstyle
+\@onlypreamble\def@index
+
+
+\if@xindy
+\AfterPreamble{\write@aux{\string\index@sort{xindy}}}
+\else
+\AfterPreamble{\write@aux{\string\index@sort{makeindex}}}
+\fi
+
+\makeindex
+
+\if@xindy
+\PackageInfo{xindex}{xindy will be used to sort index.}
+\fi
+
+\endinput

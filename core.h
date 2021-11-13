@@ -7,7 +7,8 @@
 * @assigns process string as a c char array and calls system with it
 * @ensures return code from system() call
 */
-inline auto system(std::string input) { return system(input.c_str()); };
+inline auto system(std::string const input) { return system(input.c_str()); };
+inline auto system(std::string* input) { return system(input->c_str()); };
 
 void processFile(std::ifstream* file, std::string* filename, bool verbose, std::ofstream* log);
 

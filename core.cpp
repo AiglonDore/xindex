@@ -248,7 +248,11 @@ void processFile(std::ifstream* file, string* filename, bool verbose, ofstream* 
 				tmp.append(" -g");
 			}
 			*log << "Executing command: " << tmp << ".\n";
-			int returnSys = system(tmp);
+			if (verbose)
+			{
+				cout << "Executing command: " << tmp << ".\n";
+			}
+			int returnSys = system(&tmp);
 			if (returnSys != 0)
 			{
 				cerr << "Failed to process index " << i + 1 << endl;

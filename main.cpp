@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			cerr << "Unable to write log file xindex.log" << endl;
+			cerr << "Unable to write log file \"xindex.log\"." << endl;
 		}
 		cerr << "Wrong argument number." << endl;
 		cerr << "One and only one argument is expected, or 2 if option -verbose is used." << endl;
@@ -65,19 +65,19 @@ int main(int argc, char *argv[])
 		buildFileName(filename, argv[1]);
 		buildFileName(logname, argv[1], "_xindex.log");
 	}
-	else if (string(argv[1])==string("-verbose") || string(argv[1]) == string("-v"))
+	else if (!strcmp(argv[1],"-verbose") || !strcmp(argv[1],"-v"))
 	{
 		verbose = true;
 		buildFileName(filename, argv[2]);
 		buildFileName(logname, argv[2], "_xindex.log");
-		cout << "Option verbose enabled." << endl;
+		cout << "Option \"verbose\" enabled." << endl;
 	}
-	else if (string(argv[2]) == string("-verbose") || string(argv[1]) == string("-v"))
+	else if (!strcmp(argv[2],"-verbose") || !strcmp(argv[2],"-v"))
 	{
 		verbose = true;
 		buildFileName(filename, argv[1]);
 		buildFileName(logname, argv[1], "_xindex.log");
-		cout << "Option verbose enabled." << endl;
+		cout << "Option \"verbose\" enabled." << endl;
 	}
 	else
 	{
@@ -97,11 +97,11 @@ int main(int argc, char *argv[])
 			log << "xindex [-verbose] file\n";
 			log << "xindex exited with error code 6.\n";
 			log << "End transmission.\n";
-			cout << "Transcript written on xindex.log." << endl;
+			cout << "Transcript written on \"xindex.log\"." << endl;
 		}
 		else
 		{
-			cerr << "Unable to write log file xindex.log" << endl;
+			cerr << "Unable to write log file \"xindex.log\"." << endl;
 			cerr << "Option not recognized." << endl;
 			cerr << "xindex [-verbose] file" << endl;
 			cerr << "xindex exited with error code " << 6 << "." << endl;
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 	ofstream log(logname->c_str());//Fichier de journal ouvert en écriture
 	if (!log)
 	{
-		cerr << "Unable to write log file " << *logname << "." << endl;
+		cerr << "Unable to write log file \"" << *logname << "\"." << endl;
 		cerr << "Task aborted." << endl;
 		delete filename;
 		filename = nullptr;
@@ -125,21 +125,22 @@ int main(int argc, char *argv[])
 		return EXIT_LOG;
 	}
 	log << "This is xindex, a new tool to call sorting programs!\n";
-	cout << "File " << *logname << " successfully opened!" << endl;
+	cout << "File \"" << *logname << "\" successfully opened!" << endl;
 	log << "Analysing input sequence...\n";
 	if (verbose)
 	{
-		log << "Option verbose enabled.\n";
+		log << "Option \"verbose\" enabled.\n";
 		log << "More will be written in the terminal.\n";
 	}
 	if (file)
 	{
+		bool gloss;
 		cout << "Opening file " << *filename << endl;
 		log << "Opening file " << *filename << "\n";
 		try
 		{
 			log << "File " << *filename << " is valid. Proceeding to process file.\n";
-			processFile(&file,filename,verbose,&log);
+			processFile(&file,filename,verbose,&log,&gloss);
 		}
 		catch (int e)
 		{
@@ -147,58 +148,58 @@ int main(int argc, char *argv[])
 			switch (e)
 			{
 			case 3:
-				cerr << "No style detected in " << *filename << endl;
-				cerr << "Closing file " << *filename << ". Task aborted." << endl;
+				cerr << "No style detected in \"" << *filename << "\"." << endl;
+				cerr << "Closing file \"" << *filename << "\". Task aborted." << endl;
 				cerr << "xindex exited with error code " << 3 << "." << endl;
-				log << "No style header has been found while looking in " << *filename << ".\n";
-				log << "Closing file " << *filename << ". Task aborted.\n";
+				log << "No style header has been found while looking in \"" << *filename << "\".\n";
+				log << "Closing file \"" << *filename << "\". Task aborted.\n";
 				log << "xindex exited with error code 3.\n";
 				log << "End transmission.\n";
 				file.close();
 				log.close();
-				cout << "Transcript has been written to " << *logname << "." << endl;
+				cout << "Transcript has been written to \"" << *logname << "\"." << endl;
 				delete filename;
 				filename = nullptr;
 				delete logname;
 				logname = nullptr;
 				return EXIT_NOSTYLE;
 			case 4:
-				cerr << "No file to sort detected in " << *filename << endl;
-				cerr << "Closing file " << *filename << ". Task aborted." << endl;
+				cerr << "No file to sort detected in \"" << *filename << "\"." << endl;
+				cerr << "Closing file \"" << *filename << "\". Task aborted." << endl;
 				cerr << "xindex exited with error code " << 4 << "." << endl;
-				log << "No file extensions for sorting have been found while looking in " << *filename << ".\n";
-				log << "Closing file " << *filename << ". Task aborted.\n";
+				log << "No file extensions for sorting have been found while looking in \"" << *filename << "\".\n";
+				log << "Closing file \"" << *filename << "\". Task aborted.\n";
 				log << "xindex exited with error code 4.\n";
 				log << "End transmission.\n";
 				file.close();
 				delete filename;
 				log.close();
 				filename = nullptr;
-				cout << "Transcript has been written to " << *logname << "." << endl;
+				cout << "Transcript has been written to \"" << *logname << "\"." << endl;
 				delete logname;
 				logname = nullptr;
 				return EXIT_NOFILE_SORT;
 			case 5:
-				cerr << "No sort program detected in " << *filename << endl;
-				cerr << "Closing file " << *filename << ". Task aborted." << endl;
+				cerr << "No sort program detected in \"" << *filename << "\"." << endl;
+				cerr << "Closing file \"" << *filename << "\". Task aborted." << endl;
 				cerr << "xindex exited with error code " << 5 << "." << endl;
-				log << "No sort program has been found while looking in " << *filename << ".\n";
-				log << "Closing file " << *filename << ". Task aborted.\n";
+				log << "No sort program has been found while looking in \"" << *filename << "\".\n";
+				log << "Closing file \"" << *filename << "\". Task aborted.\n";
 				log << "xindex exited with error code 5.\n";
 				log << "End transmission.\n";
 				file.close();
 				log.close();
 				delete filename;
 				filename = nullptr;
-				cout << "Transcript has been written to " << *logname << "." << endl;
+				cout << "Transcript has been written to \"" << *logname << "\"." << endl;
 				delete logname;
 				logname = nullptr;
 				return EXIT_NOSORT_ALG;
 			}
 		}
-		cout << "Closing file " << *filename << "." << endl;
+		cout << "Closing file \"" << *filename << "\"." << endl;
 		cout << "Sort completed." << endl;
-		log << "Closing file " << *filename << ".\n";
+		log << "Closing file \"" << *filename << "\".\n";
 		log << "Sort has sucessfully completed.\n";
 		if (verbose)
 		{
@@ -206,11 +207,32 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			log << "If you want to have sort logs in this file, please use option -verbose.\n";
+			log << "If you want to have sort logs in this file, please use option \"-verbose\".\n";
+		}
+		file.close();
+		if (gloss)
+		{
+			cout << "Glossary detected. I'm going to sort it too!" << endl;
+			log << "Glossary detected. I'm going to sort it too!" << endl;
+			string commandGls = "makeglossaries";
+			commandGls.push_back(' ');
+			commandGls.append(purename(*filename));
+			log << "Executing command: \"" << commandGls << "\".\n";
+			if (verbose) cout << "Executing command: \"" << commandGls << "\".\n";
+			int x = system(commandGls);
+			if (x == 0)
+			{
+				cout << "Glossaries sort sucessfull." << endl;
+				log << "Glossaries sort sucessfull." << endl;
+			}
+			else
+			{
+				cout << "Glossaries sorting run failed." << endl;
+				log << "Glossaries sorting run failed with code " << x <<"." << endl;
+			}
 		}
 		log << "End transmission.\n";
-		cout << "Transcript has been written to " << *logname << "." << endl;
-		file.close();
+		cout << "Transcript has been written to \"" << *logname << "\"." << endl;
 		log.close();
 		delete filename;
 		filename = nullptr;
@@ -218,12 +240,12 @@ int main(int argc, char *argv[])
 		logname = nullptr;
 		return EXIT_SUCCESS;
 	}
-	else
+	else//Cas d'un fichier invalide
 	{
 		file.close();
-		cerr << "File " << *filename << " is not valid." << endl;
+		cerr << "File \"" << *filename << "\" is not valid." << endl;
 		cerr << "xindex exited with error code " << 2 << "." << endl;
-		log << "File " << *filename << " is not valid.\n";
+		log << "File \"" << *filename << "\" is not valid.\n";
 		log << "Please check the name of the file and its directory.\n";
 		log << "Then, rerun xindex.\n";
 		log << "xindex exited with error code " << 2 << ".\n";
@@ -231,7 +253,7 @@ int main(int argc, char *argv[])
 		delete filename;
 		filename = nullptr;
 		log.close();
-		cout << "Transcript has been written to " << *logname << "." << endl;
+		cout << "Transcript has been written to \"" << *logname << "\"." << endl;
 		delete logname;
 		logname = nullptr;
 		return EXIT_WRONG_FILE;

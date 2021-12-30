@@ -17,7 +17,7 @@ string const newInd = "aux@new@index";
 * @assigns tmp
 * @ensures tmp = string \ spaces
 */
-inline string trimSpaces(string input, bool nobreakspace = false)
+inline string trimSpaces(string const& input, bool nobreakspace = false)
 {
 	string tmp = "";
 	for (int i = 0; i < input.size(); i++)
@@ -35,7 +35,7 @@ inline string trimSpaces(string input, bool nobreakspace = false)
 * @assigns tmp
 * @ensures tmp = name \ extension
 */
-inline string purename(string name, string extension = ".aux")
+inline string purename(string const& name, string extension)
 {
 	string tmp("");
 	size_t up = name.find(extension);
@@ -51,10 +51,10 @@ inline string purename(string name, string extension = ".aux")
 * @assigns log file and calls makeindex or xindy
 * @ensures if no exception, nothing, else exception code relative to a missing sorting alg, style or data file
 */
-void processFile(std::ifstream* file, string* filename, bool verbose, ofstream* log)
+void processFile(std::ifstream* file, string* filename, bool verbose, ofstream* log, bool *gloss)
 {
-	string pureName = purename(*filename);
-	*log << "Sequences needed: \n";
+	string const pureName = purename(*filename);
+	*log << "Sequences needed:\n";
 	*log << "-" << sortMkI << " or " << sortXdy << ".\n";
 	*log << "-" << styleLine << ".\n";
 	*log << "-" << newInd << ".\n";
@@ -72,22 +72,22 @@ void processFile(std::ifstream* file, string* filename, bool verbose, ofstream* 
 		if (init && !algFound && ligne.find(sortMkI) != string::npos)//Alg: makeindex
 		{
 			algFound = true;
-			*log << "I found a sort algorithm: makeindex.\n";
+			*log << "I found a sort algorithm: \"makeindex\".\n";
 			*log << "It was at line " << countLigne << " in the aux file.\n";
 			if (verbose)
 			{
-				cout << "Sort algorithm: makeindex." << endl;
+				cout << "Sort algorithm: \"makeindex\"." << endl;
 			}
 		}
 		else if (init && !algFound && ligne.find(sortXdy) != string::npos)//Alg: xindy
 		{
 			algFound = true;
 			xindy = true;
-			*log << "I found a sort algorithm: xindy.\n";
+			*log << "I found a sort algorithm: \"xindy\".\n";
 			*log << "It was at line " << countLigne << " in the aux file.\n";
 			if (verbose)
 			{
-				cout << "Sort algorithm: xindy." << endl;
+				cout << "Sort algorithm: \"xindy\"." << endl;
 			}
 		}
 		else if (init && ligne.find(styleLine) != string::npos)//Ligne de style trouvée
@@ -110,12 +110,12 @@ void processFile(std::ifstream* file, string* filename, bool verbose, ofstream* 
 			{
 				currentStyle.append(".ist");
 			}
-			*log << "Style found: " << currentStyle << ".\n";
+			*log << "Style found: \"" << currentStyle << "\".\n";
 			*log << "It will be used for the coming index.\n";
 			*log << "It was at line " << countLigne << " in the aux file.\n";
 			if (verbose)
 			{
-				cout << "Style found: " << currentStyle << endl;
+				cout << "Style found: \"" << currentStyle << "\"." << endl;
 			}
 		}
 		else if (init && ligne.find(newInd) != string::npos)//Ligne de nouvel index trouvé
@@ -142,15 +142,15 @@ void processFile(std::ifstream* file, string* filename, bool verbose, ofstream* 
 				}
 				tmp[1].push_back(ligne[i]);
 			}
-			*log << "Index original file extension: " << tmp[0] << endl;
-			*log << "Index destination file extension: " << tmp[1] << endl;
-			*log << "Style for this index: " << tmp[2] << endl;
+			*log << "Index original file extension: \"" << tmp[0] << "\"." << endl;
+			*log << "Index destination file extension: \"" << tmp[1] << "\"." << endl;
+			*log << "Style for this index: \"" << tmp[2] << "\"." << endl;
 			if (verbose)
 			{
 				cout << "Index found." << endl;
-				cout << "Index original file extension: " << tmp[0] << "." << endl;
-				cout << "Index destination file extension: " << tmp[1] << "." << endl;
-				cout << "Style for this index: " << tmp[2] << "." << endl;
+				cout << "Index original file extension: \"" << tmp[0] << "\"." << endl;
+				cout << "Index destination file extension: \"" << tmp[1] << "\"." << endl;
+				cout << "Style for this index: \"" << tmp[2] << "\"." << endl;
 			}
 			index.push_back(tmp);
 		}
@@ -166,6 +166,10 @@ void processFile(std::ifstream* file, string* filename, bool verbose, ofstream* 
 				*log << "Exploration ended at line " << countLigne << ".\n";
 				break;
 			}
+		}
+		if (!(*gloss) && ligne.find("newglossary") != string::npos)
+		{
+			*gloss = true;
 		}
 	}
 	if (!styleFound)//Pas de style trouvé
@@ -220,7 +224,12 @@ void processFile(std::ifstream* file, string* filename, bool verbose, ofstream* 
 			tmp.append(index[i][0]);
 			*log << "Index " << i << ".\n";
 			*log << "Executing command: " << tmp << ".\n";
-			system(tmp.c_str());
+			if (verbose)
+			{
+				cout << "Index " << i << ".\n";
+				cout << "Executing command: " << tmp << ".\n";
+			}
+			system(tmp);
 		}
 	}
 	else
@@ -241,8 +250,8 @@ void processFile(std::ifstream* file, string* filename, bool verbose, ofstream* 
 				tmp.append(to_string(i));
 			}
 			tmp.append(" -o ");
-			tmp.append(pureName+ string(".") + index[i][1]+ " ");
-			tmp.append(pureName +string(".") + index[i][0]);
+			tmp.append(pureName + string(".") + index[i][1] + " ");
+			tmp.append(pureName + string(".") + index[i][0]);
 			if (index[i][2].find("allemand") != string::npos)
 			{
 				tmp.append(" -g");
@@ -250,15 +259,16 @@ void processFile(std::ifstream* file, string* filename, bool verbose, ofstream* 
 			*log << "Executing command: " << tmp << ".\n";
 			if (verbose)
 			{
+				cout << "Index " << i + 1 << ".\n";
 				cout << "Executing command: " << tmp << ".\n";
 			}
-			int returnSys = system(&tmp);
+			int returnSys = system(tmp);
 			if (returnSys != 0)
 			{
-				cerr << "Failed to process index " << i + 1 << endl;
+				cerr << "Failed to process index " << i + 1 << "." << endl;
 				cerr << "Check log file for more information." << endl;
 				if (verbose) { cerr << "Error code: " << returnSys << "." << endl; }
-				*log << "Failed to process index " << i + 1 << endl;
+				*log << "Failed to process index " << i + 1 << "." << endl;
 				*log << "It failed with code " << returnSys << ".\n";
 			}
 			else
